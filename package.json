@@ -1,0 +1,37 @@
+{
+  "name": "e-commerce-automation-project",
+  "version": "1.0.0",
+  "description": "Playwright + TypeScript UI and API automation suite for the e-commerce storefront",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test tests/smoke",
+    "test:regression": "playwright test tests/regression",
+    "test:api": "playwright test --project=api",
+    "test:ui": "playwright test --project=chromium",
+    "test:headed": "playwright test --project=chromium --headed",
+    "test:debug": "playwright test --debug",
+    "test:qa": "cross-env ENV=qa playwright test",
+    "test:staging": "cross-env ENV=staging playwright test",
+    "test:prod": "cross-env ENV=prod playwright test",
+    "report": "playwright show-report reports/html",
+    "codegen": "playwright codegen https://automationexercise.com",
+    "typecheck": "tsc --noEmit",
+    "clean": "node -e \"require('fs').rmSync('reports',{recursive:true,force:true});require('fs').rmSync('test-results',{recursive:true,force:true})\""
+  },
+  "keywords": [
+    "playwright",
+    "typescript",
+    "automation",
+    "e-commerce"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.3",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.6.1"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "validUser": {
+    "name": "QA Automation",
+    "email": "qa.automation@example.com",
+    "password": "Passw0rd!23"
+  },
+  "invalidUser": {
+    "email": "does.not.exist@example.com",
+    "password": "WrongPassword1!"
+  },
+  "signupTemplate": {
+    "title": "Mr",
+    "password": "Passw0rd!23",
+    "firstName": "Test",
+    "lastName": "User",
+    "company": "EMS Ltd",
+    "address1": "House 12, Road 4",
+    "address2": "Banani",
+    "country": "Singapore",
+    "state": "Dhaka",
+    "city": "Dhaka",
+    "zipcode": "1213",
+    "mobileNumber": "01700000000"
+  }
+}

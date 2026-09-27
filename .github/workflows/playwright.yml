@@ -1,0 +1,72 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to run against
+        type: choice
+        options: [qa, staging, prod]
+        default: qa
+  schedule:
+    - cron: '0 2 * * *'
+
+jobs:
+  test:
+    name: ${{ matrix.suite }}
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [api, smoke, regression]
+
+    env:
+      ENV: ${{ github.event.inputs.environment || 'qa' }}
+      QA_USER_EMAIL: ${{ secrets.QA_USER_EMAIL }}
+      QA_USER_PASSWORD: ${{ secrets.QA_USER_PASSWORD }}
+      STAGING_USER_EMAIL: ${{ secrets.STAGING_USER_EMAIL }}
+      STAGING_USER_PASSWORD: ${{ secrets.STAGING_USER_PASSWORD }}
+      PROD_USER_EMAIL: ${{ secrets.PROD_USER_EMAIL }}
+      PROD_USER_PASSWORD: ${{ secrets.PROD_USER_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        if: matrix.suite != 'api'
+        run: npx playwright install --with-deps chromium
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Run API tests
+        if: matrix.suite == 'api'
+        run: npx playwright test --project=api
+
+      - name: Run UI tests
+        if: matrix.suite != 'api'
+        run: npx playwright test tests/${{ matrix.suite }} --project=chromium
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-${{ matrix.suite }}
+          path: |
+            reports/
+            test-results/
+          retention-days: 30

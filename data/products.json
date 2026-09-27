@@ -1,0 +1,21 @@
+{
+  "searchTerms": ["top", "tshirt", "jeans", "dress", "saree"],
+  "noResultTerm": "zzzznotaproduct",
+  "expectedCategories": ["Women", "Men", "Kids"],
+  "expectedBrands": [
+    "Polo",
+    "H&M",
+    "Madame",
+    "Mast & Harbour",
+    "Babyhug",
+    "Allen Solly Junior",
+    "Kookie Kids",
+    "Biba"
+  ],
+  "sampleProduct": {
+    "id": 1,
+    "name": "Blue Top",
+    "category": "Women > Tops",
+    "brand": "Polo"
+  }
+}
