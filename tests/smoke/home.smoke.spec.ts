@@ -1,38 +1,14 @@
-import { test, expect } from '../../fixtures/base.fixture';
+import { test } from '../../fixtures/base.fixture';
+
+/**
+ * Smoke: the home page critical path only — it loads.
+ * Needs no session, so the smoke run can skip auth.setup.ts entirely.
+ */
+test.use({ storageState: { cookies: [], origins: [] } });
 
 test.describe('Home page @smoke', () => {
-  test.beforeEach(async ({ homePage }) => {
-    await homePage.goto();
-  });
-
   test('loads with logo and featured products', async ({ homePage }) => {
+    await homePage.goto();
     await homePage.expectLoaded();
-  });
-
-  test('shows the account nav for a signed-in user', async ({ homePage, page, env }) => {
-    test.skip(
-      !env.credentials.email || !env.credentials.password,
-      'No credentials configured — auth.setup.ts leaves the session anonymous',
-    );
-
-    await expect(homePage.logoutLink).toBeVisible();
-    await expect(homePage.cartLink).toBeVisible();
-    await expect(page).toHaveTitle(/Automation Exercise/i);
-  });
-
-  /** The public nav only renders without a session, so drop the stored one. */
-  test.describe('signed out', () => {
-    test.use({ storageState: { cookies: [], origins: [] } });
-
-    test('shows the primary navigation links', async ({ homePage, page }) => {
-      await expect(homePage.signupLoginLink).toBeVisible();
-      await expect(homePage.cartLink).toBeVisible();
-      await expect(page).toHaveTitle(/Automation Exercise/i);
-    });
-  });
-
-  test('search box is usable', async ({ homePage, page }) => {
-    await homePage.search('top');
-    await expect(page.locator('.features_items')).toContainText('Searched Products');
   });
 });

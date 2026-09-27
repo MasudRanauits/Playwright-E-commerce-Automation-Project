@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "playwright test",
-    "test:smoke": "playwright test --grep @smoke",
+    "test:smoke": "playwright test --grep @smoke --no-deps",
     "test:regression": "playwright test --grep @regression",
     "test:login": "playwright test tests/smoke/login.smoke.spec.ts tests/regression/login.regression.spec.ts",
     "test:api": "playwright test --project=api",

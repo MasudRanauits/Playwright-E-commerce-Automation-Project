@@ -60,7 +60,13 @@ export default defineConfig({
       name: 'chromium',
       testDir: './tests',
       testIgnore: /api[\\/]/,
-      use: { ...devices['Desktop Chrome'], viewport: null, storageState: STORAGE_STATE },
+      use: {
+        ...devices['Desktop Chrome'],
+        /* Fill the maximized window; deviceScaleFactor must go with the fixed viewport. */
+        viewport: null,
+        deviceScaleFactor: undefined,
+        storageState: STORAGE_STATE,
+      },
       dependencies: ['setup'],
     },
     // {
