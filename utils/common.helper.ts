@@ -35,6 +35,39 @@ export async function screenshot(page: Page, name: string): Promise<string> {
   return file;
 }
 
+/** Ad hosts that inject the interstitial / vignette overlays on the storefront. */
+const AD_HOSTS = [
+  'googlesyndication.com',
+  'googletagservices.com',
+  'doubleclick.net',
+  'adtrafficquality.google',
+  'google-analytics.com',
+  'googletagmanager.com',
+  'ezoic.net',
+  'ezodn.com',
+];
+
+/**
+ * Aborts requests to the ad networks. Without this the Google vignette
+ * (#google_vignette) covers the page and intercepts clicks mid-test.
+ */
+export async function blockAds(page: Page): Promise<void> {
+  await page.route('**/*', (route) => {
+    const url = route.request().url();
+    if (AD_HOSTS.some((host) => url.includes(host))) {
+      return route.abort();
+    }
+    return route.continue();
+  });
+}
+
+/** Closes a vignette that slipped through, so a following click isn't swallowed. */
+export async function dismissVignette(page: Page): Promise<void> {
+  if (!page.url().includes('google_vignette')) return;
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+}
+
 /** Scrolls to the bottom so lazy-loaded sections render before assertions. */
 export async function scrollToBottom(page: Page): Promise<void> {
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));

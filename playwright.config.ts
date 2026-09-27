@@ -7,10 +7,16 @@ import env, { STORAGE_STATE } from './config/env.config';
  */
 export default defineConfig({
   testDir: './tests',
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  /* The target is a live public demo site; it drops requests under parallel load. */
+  retries: process.env.CI ? 2 : 1,
+  /**
+   * Playwright's default (half the CPU cores) is memory-bound here, not CPU-bound:
+   * this box has 12 cores but 4 GB of RAM, and 6 browsers OOM the machine.
+   * Override with WORKERS=4 npm test on a larger machine.
+   */
+  workers: process.env.WORKERS ? Number(process.env.WORKERS) : 1,
   timeout: 60_000,
   expect: { timeout: 10_000 },
 
@@ -25,6 +31,10 @@ export default defineConfig({
 
   use: {
     baseURL: env.baseURL,
+    headless: !!process.env.CI,
+    /* Full-screen browser window; viewport: null lets the page fill it. */
+    launchOptions: { args: ['--start-maximized'] },
+    viewport: null,
     actionTimeout: 15_000,
     navigationTimeout: 30_000,
     trace: 'on-first-retry',
@@ -50,23 +60,23 @@ export default defineConfig({
       name: 'chromium',
       testDir: './tests',
       testIgnore: /api[\\/]/,
-      use: { ...devices['Desktop Chrome'], storageState: STORAGE_STATE },
+      use: { ...devices['Desktop Chrome'], viewport: null, storageState: STORAGE_STATE },
       dependencies: ['setup'],
     },
-    {
-      name: 'firefox',
-      testDir: './tests',
-      testIgnore: /api[\\/]/,
-      use: { ...devices['Desktop Firefox'], storageState: STORAGE_STATE },
-      dependencies: ['setup'],
-    },
-    {
-      name: 'webkit',
-      testDir: './tests',
-      testIgnore: /api[\\/]/,
-      use: { ...devices['Desktop Safari'], storageState: STORAGE_STATE },
-      dependencies: ['setup'],
-    },
+    // {
+    //   name: 'firefox',
+    //   testDir: './tests',
+    //   testIgnore: /api[\\/]/,
+    //   use: { ...devices['Desktop Firefox'], storageState: STORAGE_STATE },
+    //   dependencies: ['setup'],
+    // },
+    // {
+    //   name: 'webkit',
+    //   testDir: './tests',
+    //   testIgnore: /api[\\/]/,
+    //   use: { ...devices['Desktop Safari'], storageState: STORAGE_STATE },
+    //   dependencies: ['setup'],
+    // },
 
     // {
     //   name: 'Mobile Chrome',

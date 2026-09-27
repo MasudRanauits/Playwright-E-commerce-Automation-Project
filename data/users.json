@@ -8,6 +8,12 @@
     "email": "does.not.exist@example.com",
     "password": "WrongPassword1!"
   },
+  "login": {
+    "wrongPassword": "WrongPassword1!",
+    "unregisteredEmail": "not.registered.user@example.com",
+    "malformedEmails": ["plainaddress", "user@", "@example.com", "user@@example.com"],
+    "wellFormedEmail": "masud8343@gmail.com"
+  },
   "signupTemplate": {
     "title": "Mr",
     "password": "Passw0rd!23",
