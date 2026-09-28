@@ -10,6 +10,7 @@ export class HomePage {
   readonly logo: Locator;
   readonly searchInput: Locator;
   readonly searchButton: Locator;
+  readonly productsLink: Locator;
   readonly signupLoginLink: Locator;
   readonly logoutLink: Locator;
   readonly cartLink: Locator;
@@ -27,6 +28,7 @@ export class HomePage {
     this.logo = page.locator('.logo img');
     this.searchInput = page.locator('#search_product');
     this.searchButton = page.locator('#submit_search');
+    this.productsLink = page.locator('.navbar-nav a[href="/products"]');
     this.signupLoginLink = page.getByRole('link', { name: 'Signup / Login' });
     this.logoutLink = page.getByRole('link', { name: 'Logout' });
     this.cartLink = page.getByRole('link', { name: 'Cart' }).first();
@@ -70,6 +72,11 @@ export class HomePage {
 
   async openCart(): Promise<void> {
     await this.cartLink.click();
+  }
+
+  /** Products lives in the header nav and is reachable from every page. */
+  async goToProducts(): Promise<void> {
+    await this.productsLink.click();
   }
 
   async goToSignupLogin(): Promise<void> {

@@ -63,6 +63,30 @@ TC_LOGIN_05 and TC_LOGIN_07 assert against the browser's own `checkValidity()` r
 message: the site relies on HTML5 `required` / `type="email"`, so there is no server-rendered error
 to match. Only a submitted bad *credential* produces "Your email or password is incorrect!".
 
+## Products menu coverage
+
+[tests/smoke/products.smoke.spec.ts](tests/smoke/products.smoke.spec.ts) holds the critical path;
+[tests/regression/products.regression.spec.ts](tests/regression/products.regression.spec.ts) holds the rest.
+
+| Case | Covers | Suite |
+| --- | --- | --- |
+| TC_005 | Products in the header opens the Products page | smoke + regression |
+| TC_005 | The link renders and points at `/products` | regression |
+| TC_005 | Landing URL is `/products`, titled "All Products" | regression |
+| TC_005 | Grid lists products with prices and View Product links | regression |
+| TC_005 | Search box, category panel and brand panel all present | regression |
+| TC_005 | Products is highlighted as the active menu item | regression |
+| TC_005 | Menu reaches Products from a page other than home | regression |
+| TC_005 | Menu works signed in and keeps the session | regression |
+| TC_005 | Browser back returns to the page the menu was clicked from | regression |
+| TC_005 | Menu and a direct `/products` visit render the same list | regression |
+| TC_005 | Listed products match the `productsList` API exactly | regression |
+
+The smoke case runs signed out; the regression cases run with the stored session, so the
+cross-page check starts from Contact Us — a signed-in user is redirected away from `/login`.
+The active-item assertion matches the site's own marker, an inline `color: orange` on the
+current nav entry.
+
 ## Environments
 
 `ENV` selects which config module loads — `qa` (default), `staging` or `prod`.

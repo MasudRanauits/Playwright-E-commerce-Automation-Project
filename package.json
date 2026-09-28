@@ -8,6 +8,7 @@
     "test:smoke": "playwright test --grep @smoke --no-deps",
     "test:regression": "playwright test --grep @regression",
     "test:login": "playwright test tests/smoke/login.smoke.spec.ts tests/regression/login.regression.spec.ts",
+    "test:products": "playwright test tests/smoke/products.smoke.spec.ts tests/regression/products.regression.spec.ts",
     "test:api": "playwright test --project=api",
     "test:ui": "playwright test --project=chromium",
     "test:cross-browser": "playwright test --project=chromium --project=firefox --project=webkit --grep @smoke",
