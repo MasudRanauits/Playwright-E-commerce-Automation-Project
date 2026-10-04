@@ -8,6 +8,10 @@ const config: EnvConfig = {
     email: process.env.STAGING_USER_EMAIL ?? '',
     password: process.env.STAGING_USER_PASSWORD ?? '',
   },
+  secondaryCredentials: {
+    email: process.env.STAGING_USER2_EMAIL ?? '',
+    password: process.env.STAGING_USER2_PASSWORD ?? '',
+  },
 };
 
 export default config;

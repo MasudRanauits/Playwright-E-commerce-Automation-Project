@@ -24,6 +24,9 @@ cp .env.example .env   # then fill in credentials
 | `npm run test:smoke` | Everything tagged `@smoke` |
 | `npm run test:regression` | Everything tagged `@regression` |
 | `npm run test:login` | The login smoke + regression specs |
+| `npm run test:workflows` | The WF-01..WF-21 workflow suite |
+| `npm run test:cart` | Everything tagged `@cart` |
+| `npm run test:e2e` | The end-to-end journeys (`@e2e`) |
 | `npm run test:ui` | UI specs on Chromium |
 | `npm run test:cross-browser` | `@smoke` on Chromium, Firefox and WebKit |
 | `npm run test:headed` | Chromium with a visible browser |
@@ -87,6 +90,38 @@ cross-page check starts from Contact Us — a signed-in user is redirected away 
 The active-item assertion matches the site's own marker, an inline `color: orange` on the
 current nav entry.
 
+## Workflow coverage (WF-01 to WF-21)
+
+[tests/workflows/](tests/workflows/) implements the workflow-based test case
+document: one spec per workflow, one Playwright test per TC ID, with the ID as
+the first token of the test title so a report row traces straight back to the
+document. [docs/workflow-traceability.md](docs/workflow-traceability.md) has the
+full map, including the two cases that were already automated elsewhere and are
+therefore not duplicated here.
+
+Three conventions hold across all of them:
+
+- **Expected values are captured, never hard coded.** A cart assertion compares
+  against the name and price read from the card at the moment it was added, so a
+  catalogue change never produces a false failure.
+- **The locator repository is keyed by the document.** [data/locators.ts](data/locators.ts)
+  uses the same names the written steps use (HDR_NAV_ITEMS, CART_TABLE, …).
+- **Waits are on conditions, never on the clock.** Modal dismissal waits for
+  invisibility, removal waits for the row to detach, the scroll utility waits on
+  the offset.
+
+The specs run as a guest, and each test gets a fresh context, so every cart case
+starts from an empty cart without a teardown. Cases needing a registered account
+skip with a clear message when the credentials are absent.
+
+Three cases fail against the live site because the application is wrong, not the
+test — mixed-content stylesheets, a search that does not trim its input, and a
+missing search control on filtered listings. They are written up in
+[docs/known-defects.md](docs/known-defects.md) rather than relaxed. The four
+`@performance` cases are indicative benchmarks against a shared public
+environment; exclude them from a gating run with `--grep-invert @performance`
+and read the attached values as a trend.
+
 ## Environments
 
 `ENV` selects which config module loads — `qa` (default), `staging` or `prod`.
@@ -119,13 +154,17 @@ once locally and twice on CI.
 tests/
   smoke/        fast, business-critical checks (@smoke)
   regression/   deep functional coverage (@regression)
+  workflows/    WF-01..WF-21, one spec per workflow (see docs/)
   api/          endpoint contract tests (@api)
   auth.setup.ts logs in once, saves session to playwright/.auth/user.json
 pages/          page objects — locators + actions, no assertions about test intent
+  components/   header, slider, sidebars, product grid, modal, footer
 fixtures/       Playwright fixtures; specs import from base.fixture.ts
-utils/          api / date / file / common helpers
-data/           static JSON test data and typed builders
-config/         per-environment configuration
+                workflow.fixture.ts is the entry point for the workflow specs
+utils/          api / browser / cart / date / file / common helpers
+data/           static JSON test data, typed builders, the locator repository
+config/         per-environment configuration plus test.config.ts
+docs/           traceability and known defects
 reports/        html, json and junit output (git-ignored)
 ```
 

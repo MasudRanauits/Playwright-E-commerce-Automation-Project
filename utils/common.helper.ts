@@ -22,10 +22,16 @@ export function pickOne<T>(items: readonly T[]): T {
   return items[randomInt(0, items.length - 1)];
 }
 
-/** Strips currency symbols and separators: "Rs. 1,200" -> 1200 */
+/**
+ * Strips currency symbols and separators: "Rs. 1,200" -> 1200
+ *
+ * Reads the first numeric group rather than deleting every non-digit: the
+ * "Rs." prefix carries a dot of its own, so deleting the letters around it
+ * leaves ".500", which parses as 0.5.
+ */
 export function parsePrice(text: string): number {
-  const digits = text.replace(/[^\d.]/g, '');
-  return Number.parseFloat(digits);
+  const match = text.replace(/,/g, '').match(/[0-9]+(?:[.][0-9]+)?/);
+  return match ? Number.parseFloat(match[0]) : Number.NaN;
 }
 
 export async function screenshot(page: Page, name: string): Promise<string> {
@@ -52,13 +58,13 @@ const AD_HOSTS = [
  * (#google_vignette) covers the page and intercepts clicks mid-test.
  */
 export async function blockAds(page: Page): Promise<void> {
-  await page.route('**/*', (route) => {
-    const url = route.request().url();
-    if (AD_HOSTS.some((host) => url.includes(host))) {
-      return route.abort();
-    }
-    return route.continue();
-  });
+  /* Matched by predicate so only the ad hosts are intercepted. Routing every
+     request through the driver adds a hop to each one and can stall the
+     document load on a slow connection. */
+  await page.route(
+    (url) => AD_HOSTS.some((host) => url.hostname.includes(host)),
+    (route) => route.abort(),
+  );
 }
 
 /** Closes a vignette that slipped through, so a following click isn't swallowed. */

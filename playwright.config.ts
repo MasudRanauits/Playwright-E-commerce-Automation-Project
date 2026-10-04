@@ -36,7 +36,8 @@ export default defineConfig({
     launchOptions: { args: ['--start-maximized'] },
     viewport: null,
     actionTimeout: 15_000,
-    navigationTimeout: 30_000,
+    /* The target is a slow shared demo; 30s is tight when it is under load. */
+    navigationTimeout: 45_000,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

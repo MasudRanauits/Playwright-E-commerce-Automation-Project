@@ -18,13 +18,13 @@ on:
 jobs:
   test:
     name: ${{ matrix.suite }}
-    timeout-minutes: 60
+    timeout-minutes: 90
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        suite: [api, smoke, regression]
+        suite: [api, smoke, regression, workflows]
 
     env:
       ENV: ${{ github.event.inputs.environment || 'qa' }}
@@ -34,6 +34,9 @@ jobs:
       STAGING_USER_PASSWORD: ${{ secrets.STAGING_USER_PASSWORD }}
       PROD_USER_EMAIL: ${{ secrets.PROD_USER_EMAIL }}
       PROD_USER_PASSWORD: ${{ secrets.PROD_USER_PASSWORD }}
+      # Only the cross-account cart isolation cases need these; they skip without them.
+      QA_USER2_EMAIL: ${{ secrets.QA_USER2_EMAIL }}
+      QA_USER2_PASSWORD: ${{ secrets.QA_USER2_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v4

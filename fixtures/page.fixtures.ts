@@ -2,13 +2,22 @@ import { test as base } from '@playwright/test';
 import { HomePage } from '../pages/HomePage';
 import { LoginPage } from '../pages/LoginPage';
 import { ProductsPage } from '../pages/ProductsPage';
+import { CartPage } from '../pages/CartPage';
+import { ProductDetailPage } from '../pages/ProductDetailPage';
+import { AddToCartModalComponent } from '../pages/components/AddToCartModalComponent';
 import { blockAds } from '../utils/common.helper';
+import { ConsoleRecorder, recordConsoleErrors } from '../utils/browser.helper';
 
 /** Page objects made available to every spec that imports this fixture. */
 export type PageFixtures = {
   homePage: HomePage;
   loginPage: LoginPage;
   productsPage: ProductsPage;
+  cartPage: CartPage;
+  productDetailPage: ProductDetailPage;
+  cartModal: AddToCartModalComponent;
+  /** Severe console output for the life of the test, third-party noise filtered. */
+  consoleErrors: ConsoleRecorder;
 };
 
 export const test = base.extend<PageFixtures>({
@@ -31,6 +40,23 @@ export const test = base.extend<PageFixtures>({
 
   productsPage: async ({ page }, use) => {
     await use(new ProductsPage(page));
+  },
+
+  cartPage: async ({ page }, use) => {
+    await use(new CartPage(page));
+  },
+
+  productDetailPage: async ({ page }, use) => {
+    await use(new ProductDetailPage(page));
+  },
+
+  cartModal: async ({ page }, use) => {
+    await use(new AddToCartModalComponent(page));
+  },
+
+  /* Attached before the first navigation so nothing logged during load is missed. */
+  consoleErrors: async ({ page }, use) => {
+    await use(recordConsoleErrors(page));
   },
 });
 

@@ -1,11 +1,24 @@
 import { Locator, Page, expect } from '@playwright/test';
+import { BasePage } from './BasePage';
+import { HeaderComponent } from './components/HeaderComponent';
+import { CategorySidebarComponent } from './components/CategorySidebarComponent';
+import { BrandSidebarComponent } from './components/BrandSidebarComponent';
+import { ProductGridComponent } from './components/ProductGridComponent';
+import { FooterSubscriptionComponent } from './components/FooterSubscriptionComponent';
+import { locators, paths } from '../data/locators';
+import { expectedText } from '../config/test.config';
 
 /**
- * All Products page (/products).
+ * All Products page (/products), the searched products view and every filtered
+ * listing — the site renders all three with the same markup.
  * Locators live at the top, actions below, assertions last.
  */
-export class ProductsPage {
-  readonly page: Page;
+export class ProductsPage extends BasePage {
+  readonly header: HeaderComponent;
+  readonly categories: CategorySidebarComponent;
+  readonly brands: BrandSidebarComponent;
+  readonly grid: ProductGridComponent;
+  readonly subscription: FooterSubscriptionComponent;
 
   readonly title: Locator;
   readonly productCards: Locator;
@@ -23,25 +36,38 @@ export class ProductsPage {
   readonly navProductsLink: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
 
-    this.title = page.locator('.features_items h2.title');
-    this.productCards = page.locator('.features_items .product-image-wrapper');
+    this.header = new HeaderComponent(page);
+    this.categories = new CategorySidebarComponent(page);
+    this.brands = new BrandSidebarComponent(page);
+    this.grid = new ProductGridComponent(page);
+    this.subscription = new FooterSubscriptionComponent(page);
+
+    this.title = page.locator(locators.PRD_PAGE_TITLE);
+    this.productCards = page.locator(locators.PRD_PRODUCT_CARDS);
     this.productNameCells = page.locator('.features_items .productinfo p');
-    this.viewProductLinks = page.locator('.features_items .choose a');
+    this.viewProductLinks = page.locator(locators.PRD_VIEW_PRODUCT_LINKS);
     this.addToCartButtons = page.locator('.features_items .productinfo .add-to-cart');
 
-    this.searchInput = page.locator('#search_product');
-    this.searchButton = page.locator('#submit_search');
+    this.searchInput = page.locator(locators.PRD_SEARCH_INPUT);
+    this.searchButton = page.locator(locators.PRD_SEARCH_SUBMIT);
 
-    this.categoryPanel = page.locator('#accordian');
-    this.brandsPanel = page.locator('.brands_products');
+    this.categoryPanel = page.locator(locators.PRD_CATEGORY_PANEL);
+    this.brandsPanel = page.locator(locators.HOME_BRANDS_PANEL);
 
     this.navProductsLink = page.locator('.navbar-nav a[href="/products"]');
   }
 
   async goto(): Promise<void> {
-    await this.page.goto('/products');
+    await this.page.goto(paths.products, { waitUntil: 'domcontentloaded' });
+  }
+
+  /** TC-W09-001 — direct navigation keeps the products stage independent of the header. */
+  async open(): Promise<void> {
+    await this.goto();
+    await this.waitForReady();
+    await expect(this.title).toBeVisible();
   }
 
   /** Clicks the Products entry in the header — available from every page. */
@@ -52,6 +78,12 @@ export class ProductsPage {
   async search(term: string): Promise<void> {
     await this.searchInput.fill(term);
     await this.searchButton.click();
+    await expect(this.title).toBeVisible();
+  }
+
+  /** The heading of whatever listing is rendered: All Products, Searched Products or a filter. */
+  async headingText(): Promise<string> {
+    return (await this.title.innerText()).replace(/\s+/g, ' ').trim();
   }
 
   async productCount(): Promise<number> {
@@ -63,15 +95,7 @@ export class ProductsPage {
    * the name <p>, so only the element's own text nodes count.
    */
   async productNames(): Promise<string[]> {
-    const names = await this.productNameCells.evaluateAll((els) =>
-      els.map((el) =>
-        Array.from(el.childNodes)
-          .filter((node) => node.nodeType === Node.TEXT_NODE)
-          .map((node) => node.textContent ?? '')
-          .join(''),
-      ),
-    );
-    return names.map((n) => n.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    return this.grid.names();
   }
 
   async openProduct(index = 0): Promise<void> {
@@ -83,5 +107,9 @@ export class ProductsPage {
     await expect(this.page).toHaveURL(/\/products\/?$/);
     await expect(this.title).toHaveText(/All Products/i);
     await expect(this.productCards.first()).toBeVisible();
+  }
+
+  async expectSearchResultView(): Promise<void> {
+    await expect(this.title).toHaveText(new RegExp(expectedText.searchedProducts, 'i'));
   }
 }
