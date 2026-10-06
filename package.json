@@ -21,6 +21,7 @@
     "test:staging": "cross-env ENV=staging playwright test",
     "test:prod": "cross-env ENV=prod playwright test",
     "report": "playwright show-report reports/html",
+    "docs:pdf": "node scripts/md-to-pdf.js docs/templates/bug-report-template.md docs/templates/test-case-template.md -o docs/templates/pdf",
     "codegen": "playwright codegen https://automationexercise.com",
     "typecheck": "tsc --noEmit",
     "clean": "node -e \"require('fs').rmSync('reports',{recursive:true,force:true});require('fs').rmSync('test-results',{recursive:true,force:true})\""

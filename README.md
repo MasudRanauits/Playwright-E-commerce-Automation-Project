@@ -164,7 +164,7 @@ fixtures/       Playwright fixtures; specs import from base.fixture.ts
 utils/          api / browser / cart / date / file / common helpers
 data/           static JSON test data, typed builders, the locator repository
 config/         per-environment configuration plus test.config.ts
-docs/           traceability and known defects
+docs/           traceability, known defects, bug report and test case templates
 reports/        html, json and junit output (git-ignored)
 ```
 
